@@ -12,7 +12,7 @@
         name: docker
         runs-on: macos-13-xlarge
         steps:
-          - run: sysctl kern.hv_support
+          # - run: sysctl kern.hv_support
           - run: brew install colima docker
           - run: colima start
           - run: docker ps
