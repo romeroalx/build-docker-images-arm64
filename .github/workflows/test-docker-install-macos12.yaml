@@ -13,6 +13,10 @@
         runs-on: macos-12
         steps:
           - run: sysctl kern.hv_support
+          # Test launch qemu with -accel hvf
+          - run: wget https://github.com/abiosoft/colima-core/releases/download/v0.6.7/ubuntu-23.10-minimal-cloudimg-arm64.qcow2
+          - run: qemu-system-aarch64 -m 1G -drive file=ubuntu-23.10-minimal-cloudimg-arm64.qcow2,if=virtio -display default,show-cursor=on -machine type=virt -accel hvf -nographic &
+          # Install colima and docker
           - run: brew install colima docker
           - run: colima start
           - run: docker ps
