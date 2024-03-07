@@ -1,5 +1,5 @@
 ---
-    name: 'Test docker install on ubicloud-standard-2-arm64'
+    name: 'Test docker install on ubicloud-standard-2-arm'
     
     on:
       push:
