@@ -1,30 +1,30 @@
 ---
-    name: 'Test docker install on ubicloud-standard-2-arm'
-    
-    on:
-      push:
-    
-    permissions: # least privileges, see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
-      contents: read
-    
-    jobs:
-      docker:
-        name: docker
-        runs-on: ubicloud-standard-2-arm
-        steps:
-          - run: sudo apt-get update
-          - run: dpkg --print-architecture
-          - run: whereis docker
-          - run: sudo groupadd -g ${DOCKER_GID} docker
-          - run: sudo install -m 0755 -d /etc/apt/keyrings
-          - run: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          - run: sudo chmod a+r /etc/apt/keyrings/docker.gpg
-          - run: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg]" \
-                    "https://download.docker.com/linux/debian "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-                    sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        
-          - run: sudo apt-get update
-          - run: sudo apt-get install -y docker-ce-cli docker-compose-plugin
-          - run: docker ps
-          - run: docker pull alpine:latest
-          - run: docker image ls
+  name: 'Test docker install on ubicloud-standard-2-arm64'
+  
+  on:
+    push:
+  
+  permissions: # least privileges, see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+    contents: read
+  
+  jobs:
+    docker:
+      name: docker
+      runs-on: ubicloud-standard-2-arm
+      steps:
+        - run: sudo apt-get update
+        - run: dpkg --print-architecture
+        - run: whereis docker
+        # - run: sudo groupadd -g ${DOCKER_GID} docker
+        # - run: sudo install -m 0755 -d /etc/apt/keyrings
+        # - run: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+        # - run: sudo chmod a+r /etc/apt/keyrings/docker.gpg
+        # - run: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg]" \
+        #           "https://download.docker.com/linux/debian "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+        #           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+        # - run: sudo apt-get update
+        # - run: sudo apt-get install -y docker-ce-cli docker-compose-plugin
+        - run: docker ps
+        - run: docker pull alpine:latest
+        - run: docker image ls
