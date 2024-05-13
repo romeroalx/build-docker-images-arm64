@@ -1,30 +1,67 @@
 ---
-  name: 'Test docker install on ubicloud-standard-2-arm64'
+  name: Trigger specific image build
   
   on:
-    push:
+    workflow_dispatch:
+      inputs:
+        product:
+          required: true
+          description: Product to build
+          type: choice
+          options:
+          - auth
+          - recursor
+          - dnsdist
+        ref:
+          description: git ref to checkout
+          type: string
+          default: master
+          required: false
+        image-name:
+          description: repository name for the requested image
+          type: string
+          required: true
+        image-tags:
+          description: tag for the requested image
+          type: string
+          required: true
+        image-description:
+          description: short description for the image repository
+          type: string
+          required: true
+        platforms:
+          description: target platform(s)
+          type: string
+          default: linux/arm64/v8,linux/amd64
+          required: false
+        build-args:
+          description: build-time variables
+          type: string
+          default: ''
+          required: false
+        push:
+          description: push image to DockerHub
+          type: boolean
+          required: true
   
   permissions: # least privileges, see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
     contents: read
+    actions: read
   
   jobs:
-    docker:
-      name: docker
-      runs-on: ubicloud-standard-2-arm
-      steps:
-        - run: sudo apt-get update
-        - run: dpkg --print-architecture
-        - run: whereis docker
-        # - run: sudo groupadd -g ${DOCKER_GID} docker
-        # - run: sudo install -m 0755 -d /etc/apt/keyrings
-        # - run: curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-        # - run: sudo chmod a+r /etc/apt/keyrings/docker.gpg
-        # - run: echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg]" \
-        #           "https://download.docker.com/linux/debian "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-        #           sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-        # - run: sudo apt-get update
-        # - run: sudo apt-get install -y docker-ce-cli docker-compose-plugin
-        - run: docker ps
-        - run: docker pull alpine:latest
-        - run: docker image ls
+    call-build-image-auth:
+      uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+      with:
+        product: ${{ inputs.product }}
+        ref: ${{ github.ref_name }}
+        image-name: ${{ inputs.image-name }}
+        image-tags: ${{ inputs.image-tags }}
+        image-description: ${{ inputs.image-tags }}
+        platforms: ${{ inputs.image-tags }}
+        build-args: ${{ inputs.build-args }}
+        push: ${{ inputs.push }}
+      secrets:
+        DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+  
