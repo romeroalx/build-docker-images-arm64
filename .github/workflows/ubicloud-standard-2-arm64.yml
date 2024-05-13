@@ -53,11 +53,11 @@
       uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
       with:
         product: ${{ inputs.product }}
-        ref: ${{ github.ref_name }}
+        ref: ${{ inputs.ref }}
         image-name: ${{ inputs.image-name }}
         image-tags: ${{ inputs.image-tags }}
-        image-description: ${{ inputs.image-tags }}
-        platforms: ${{ inputs.image-tags }}
+        image-description: ${{ inputs.image-description }}
+        platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
         push: ${{ inputs.push }}
       secrets:
