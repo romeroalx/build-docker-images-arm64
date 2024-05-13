@@ -1,6 +1,6 @@
 ---
   name: Trigger specific image build
-
+  
   on:
     workflow_dispatch:
       inputs:
@@ -21,12 +21,6 @@
           description: repository name for the requested image (e.g. pdns-recursor-50)
           type: string
           required: true
-        image-tags:
-          description: tag for the requested image e.g 5.0.0-rc1)
-          type: string
-          required: true
-          default: |-
-            latest
         image-description:
           description: short description for the image repository (e.g. PowerDNS Recursor v5.0.x)
           type: string
@@ -49,16 +43,34 @@
   permissions: # least privileges, see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
     contents: read
     actions: read
-  
+
   jobs:
+    prepare:
+      runs-on: ubuntu-22.04
+      outputs:
+        image-tag: ${{ steps.get-image-tag.outputs.tag }}
+      steps:
+        - run: |
+            if $(echo '${{ github.ref_name }}' | grep -qq master); then
+              echo "tag=''" >> $GITHUB_OUTPUT
+            else
+              echo "tag=$(echo '${{ github.ref_name }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
+            fi
+          id: get-image-tag
+        - run: |
+            echo '${{ steps.get-image-tag.outputs.tag }}'
+
     call-build-docker-image:
       uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
       # uses: PowerDNS/pdns/.github/workflows/build-docker-images.yml@master
+      needs: prepare
       with:
         product: ${{ inputs.product }}
         ref: ${{ inputs.ref }}
         image-name: ${{ inputs.image-name }}
-        image-tags: ${{ inputs.image-tags }}
+        image-tags: |-
+          latest
+          ${{ needs.prepare.outputs.image-tag }}
         image-description: ${{ inputs.image-description }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
