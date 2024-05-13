@@ -25,6 +25,8 @@
           description: tag for the requested image e.g 5.0.0-rc1)
           type: string
           required: true
+          default: |-
+            latest
         image-description:
           description: short description for the image repository (e.g. PowerDNS Recursor v5.0.x)
           type: string
