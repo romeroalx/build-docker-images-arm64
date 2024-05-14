@@ -47,6 +47,7 @@
         - run: |
             [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]] && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
           id: get-image-tag
+          shell: bash
         - run: |
             if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
               if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
@@ -56,6 +57,7 @@
                 echo "version='${{ inputs.ref }}'" >> $GITHUB_ENV
                 echo "branch='${{ inputs.ref }}'" >> $GITHUB_ENV
             fi
+          shell: bash
         - run: |
             if $(echo'${{ inputs.product }}'| grep -qq auth); then
               [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
@@ -68,6 +70,7 @@
               echo "name=dnsdist-$version" >> $GITHUB_OUTPUT
             fi
           id: get-image-metadata
+          shell: bash
 
     call-build-docker-image:
       uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
