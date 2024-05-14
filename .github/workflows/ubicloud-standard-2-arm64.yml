@@ -58,14 +58,13 @@
             fi
         - run: |
             if $(echo '${{ inputs.product }}'| grep -qq auth); then
-              # [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch' || description='EXPERIMENTAL pdns auth image'
-              echo '${{ inputs.ref }}' | egrep -qq '^auth-.*' && description='PowerDNS Authoritative Server $branch' || description='EXPERIMENTAL pdns auth image'
+              echo '${{ inputs.ref }}' | egrep -qq '^auth-.*' && description='PowerDNS Authoritative Server '$branch || description='EXPERIMENTAL pdns auth image'
               echo "name=pdns-auth-$version" >> $GITHUB_OUTPUT
             elif (echo '${{ inputs.product }}'| grep -qq recursor); then
-              echo '${{ inputs.ref }}' | egrep -qq '^rec-.*' && description='PowerDNS Recursor $branch' || description='EXPERIMENTAL pdns recursor image'
+              echo '${{ inputs.ref }}' | egrep -qq '^rec-.*' && description='PowerDNS Recursor '$branch || description='EXPERIMENTAL pdns recursor image'
               echo "name=pdns-recursor-$version" >> $GITHUB_OUTPUT
             else
-              echo '${{ inputs.ref }}' | egrep -qq '^dnsdist-.*' && description='PowerDNS DNSDist $branch' || description='EXPERIMENTAL dnsdist image'
+              echo '${{ inputs.ref }}' | egrep -qq '^dnsdist-.*' && description='PowerDNS DNSDist '$branch || description='EXPERIMENTAL dnsdist image'
               echo "name=dnsdist-$version" >> $GITHUB_OUTPUT
             fi
             echo "description=$description" >> $GITHUB_OUTPUT
