@@ -74,22 +74,22 @@
             echo '${{ steps.get-image-metadata.outputs.name }}'
             echo '${{ steps.get-image-metadata.outputs.description }}'
 
-    # call-build-docker-image:
-    #   uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
-    #   # uses: PowerDNS/pdns/.github/workflows/build-docker-images.yml@master
-    #   needs: prepare
-    #   with:
-    #     product: ${{ inputs.product }}
-    #     ref: ${{ inputs.ref }}
-    #     image-name: ${{ needs.prepare.outputs.image-name }}
-    #     image-tags: |-
-    #       latest
-    #       ${{ needs.prepare.outputs.image-tag }}
-    #     image-description: ${{ needs.prepare.outputs.image-description }}
-    #     platforms: ${{ inputs.platforms }}
-    #     build-args: ${{ inputs.build-args }}
-    #     push: ${{ inputs.push }}
-    #   secrets:
-    #     DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
-    #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-    #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    call-build-docker-image:
+      uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+      # uses: PowerDNS/pdns/.github/workflows/build-docker-images.yml@master
+      needs: prepare
+      with:
+        product: ${{ inputs.product }}
+        ref: ${{ inputs.ref }}
+        image-name: ${{ needs.prepare.outputs.image-name }}
+        image-tags: |-
+          latest
+          ${{ needs.prepare.outputs.image-tag }}
+        image-description: ${{ needs.prepare.outputs.image-description }}
+        platforms: ${{ inputs.platforms }}
+        build-args: ${{ inputs.build-args }}
+        push: ${{ inputs.push }}
+      secrets:
+        DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
