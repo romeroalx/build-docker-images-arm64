@@ -28,7 +28,7 @@ jobs:
         id: get-image-description
 
   call-build-image-auth:
-    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@test-build-images-gh-actions
     if: startsWith(github.ref_name, 'auth')
     needs: prepare
     with:
@@ -49,7 +49,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   call-build-image-recursor:
-    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@test-build-images-gh-actions
     if: startsWith(github.ref_name, 'rec')
     needs: prepare
     with:
@@ -70,7 +70,7 @@ jobs:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   call-build-image-dnsdist:
-    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+    uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@test-build-images-gh-actions
     if: startsWith(github.ref_name, 'dnsdist')
     needs: prepare
     with:
