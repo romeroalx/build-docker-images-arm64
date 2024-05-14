@@ -45,9 +45,10 @@
         image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && ( tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-) >> $GITHUB_OUTPUT )
+            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-) >> $GITHUB_OUTPUT
             # echo "tag=$tag" >> $GITHUB_OUTPUT
           id: get-image-tag
+          shell: bash
         - run: echo '${{ steps.get-image-tag.outputs.tag }}'
         - run: |
             if $(echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*'); then
@@ -57,7 +58,6 @@
               echo "version='${{ inputs.ref }}'" >> $GITHUB_ENV
               echo "branch='${{ inputs.ref }}'" >> $GITHUB_ENV
             fi
-          shell: bash
         - run: |
             if $(echo'${{ inputs.product }}'| grep -qq auth); then
               # [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch' || description='EXPERIMENTAL pdns auth image'
