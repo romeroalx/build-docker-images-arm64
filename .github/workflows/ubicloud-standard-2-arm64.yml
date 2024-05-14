@@ -45,7 +45,8 @@
         image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
+            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" || tag=''
+            echo "description=$description" >> $GITHUB_OUTPUT
           id: get-image-tag
         - run: |
             if $(echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*'); then
