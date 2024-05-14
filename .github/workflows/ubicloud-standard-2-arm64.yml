@@ -50,22 +50,22 @@
         - run: |
             if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
               if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
-                echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_OUTPUT
+                echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_ENV
+                echo "branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')" >> $GITHUB_ENV
               else
-                echo "version='${{ inputs.ref }}'" >> $GITHUB_OUTPUT
+                echo "version='${{ inputs.ref }}'" >> $GITHUB_ENV
+                echo "branch='${{ inputs.ref }}'" >> $GITHUB_ENV
             fi
-          id: get-image-version
         - run: |
-            branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')
             if $(echo'${{ inputs.product }}'| grep -qq auth); then
               [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
-              echo "name=pdns-auth-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+              echo "name=pdns-auth-$version" >> $GITHUB_OUTPUT
             elif $(echo'${{ inputs.product }}'| grep -qq recursor); then
               [[ "${{ inputs.ref }}" =~ ^rec-.* ]] && description='PowerDNS Recursor $branch'" || description='EXPERIMENTAL pdns recursor image'
-              echo "name=pdns-recursor-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+              echo "name=pdns-recursor-$version" >> $GITHUB_OUTPUT
             else
               [[ "${{ inputs.ref }}" =~ ^dnsdist-.* ]] && description='PowerDNS DNSDist $branch'" || description='EXPERIMENTAL dnsdist image'
-              echo "name=dnsdist-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+              echo "name=dnsdist-$version" >> $GITHUB_OUTPUT
             fi
           id: get-image-metadata
 
