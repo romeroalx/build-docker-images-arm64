@@ -45,22 +45,21 @@
         image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-            [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]] && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
+            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
           id: get-image-tag
-          shell: bash
         - run: |
-            if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
-              if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
-                echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_ENV
-                echo "branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')" >> $GITHUB_ENV
-              else
-                echo "version='${{ inputs.ref }}'" >> $GITHUB_ENV
-                echo "branch='${{ inputs.ref }}'" >> $GITHUB_ENV
+            if $(echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*'); then
+              echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_ENV
+              echo "branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')" >> $GITHUB_ENV
+            else
+              echo "version='${{ inputs.ref }}'" >> $GITHUB_ENV
+              echo "branch='${{ inputs.ref }}'" >> $GITHUB_ENV
             fi
           shell: bash
         - run: |
             if $(echo'${{ inputs.product }}'| grep -qq auth); then
-              [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
+              # [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
+              echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|' && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
               echo "name=pdns-auth-$version" >> $GITHUB_OUTPUT
             elif $(echo'${{ inputs.product }}'| grep -qq recursor); then
               [[ "${{ inputs.ref }}" =~ ^rec-.* ]] && description='PowerDNS Recursor $branch'" || description='EXPERIMENTAL pdns recursor image'
@@ -69,25 +68,26 @@
               [[ "${{ inputs.ref }}" =~ ^dnsdist-.* ]] && description='PowerDNS DNSDist $branch'" || description='EXPERIMENTAL dnsdist image'
               echo "name=dnsdist-$version" >> $GITHUB_OUTPUT
             fi
+            echo "description=$description" >> $GITHUB_OUTPUT
           id: get-image-metadata
           shell: bash
 
-    call-build-docker-image:
-      uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
-      # uses: PowerDNS/pdns/.github/workflows/build-docker-images.yml@master
-      needs: prepare
-      with:
-        product: ${{ inputs.product }}
-        ref: ${{ inputs.ref }}
-        image-name: ${{ needs.prepare.outputs.image-name }}
-        image-tags: |-
-          latest
-          ${{ needs.prepare.outputs.image-tag }}
-        image-description: ${{ needs.prepare.outputs.image-description }}
-        platforms: ${{ inputs.platforms }}
-        build-args: ${{ inputs.build-args }}
-        push: ${{ inputs.push }}
-      secrets:
-        DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
-        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    # call-build-docker-image:
+    #   uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
+    #   # uses: PowerDNS/pdns/.github/workflows/build-docker-images.yml@master
+    #   needs: prepare
+    #   with:
+    #     product: ${{ inputs.product }}
+    #     ref: ${{ inputs.ref }}
+    #     image-name: ${{ needs.prepare.outputs.image-name }}
+    #     image-tags: |-
+    #       latest
+    #       ${{ needs.prepare.outputs.image-tag }}
+    #     image-description: ${{ needs.prepare.outputs.image-description }}
+    #     platforms: ${{ inputs.platforms }}
+    #     build-args: ${{ inputs.build-args }}
+    #     push: ${{ inputs.push }}
+    #   secrets:
+    #     DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
+    #     DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+    #     DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
