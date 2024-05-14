@@ -45,7 +45,7 @@
         image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-              [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]] && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
+            [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]] && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
           id: get-image-tag
         - run: |
             if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
