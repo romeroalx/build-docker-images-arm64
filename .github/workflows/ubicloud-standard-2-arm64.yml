@@ -45,8 +45,8 @@
         image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)
-            echo "tag=$tag" >> $GITHUB_OUTPUT
+            echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|^rec-.*|^dnsdist-.*' && tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-) >> $GITHUB_OUTPUT
+            # echo "tag=$tag" >> $GITHUB_OUTPUT
           id: get-image-tag
         - run: echo '${{ steps.get-image-tag.outputs.tag }}'
         - run: |
@@ -60,14 +60,14 @@
           shell: bash
         - run: |
             if $(echo'${{ inputs.product }}'| grep -qq auth); then
-              # [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
-              echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|' && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
+              # [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch' || description='EXPERIMENTAL pdns auth image'
+              echo '${{ inputs.ref }}' | egrep -qq '^auth-.*|' && description='PowerDNS Authoritative Server $branch' || description='EXPERIMENTAL pdns auth image'
               echo "name=pdns-auth-$version" >> $GITHUB_OUTPUT
             elif $(echo'${{ inputs.product }}'| grep -qq recursor); then
-              [[ "${{ inputs.ref }}" =~ ^rec-.* ]] && description='PowerDNS Recursor $branch'" || description='EXPERIMENTAL pdns recursor image'
+              [[ "${{ inputs.ref }}" =~ ^rec-.* ]] && description='PowerDNS Recursor $branch' || description='EXPERIMENTAL pdns recursor image'
               echo "name=pdns-recursor-$version" >> $GITHUB_OUTPUT
             else
-              [[ "${{ inputs.ref }}" =~ ^dnsdist-.* ]] && description='PowerDNS DNSDist $branch'" || description='EXPERIMENTAL dnsdist image'
+              [[ "${{ inputs.ref }}" =~ ^dnsdist-.* ]] && description='PowerDNS DNSDist $branch' || description='EXPERIMENTAL dnsdist image'
               echo "name=dnsdist-$version" >> $GITHUB_OUTPUT
             fi
             echo "description=$description" >> $GITHUB_OUTPUT
