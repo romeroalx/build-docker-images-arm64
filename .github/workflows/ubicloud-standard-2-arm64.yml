@@ -13,18 +13,10 @@
           - recursor
           - dnsdist
         ref:
-          description: git ref to checkout (e.g. rec-5.0.0-rc1)
+          description: git branch or tag to checkout (e.g. rec-5.0.0-rc1)
           type: string
           default: master
           required: false
-        image-name:
-          description: repository name for the requested image (e.g. pdns-recursor-50)
-          type: string
-          required: true
-        image-description:
-          description: short description for the image repository (e.g. PowerDNS Recursor v5.0.x)
-          type: string
-          required: true
         platforms:
           description: target platform(s)
           type: string
@@ -49,16 +41,33 @@
       runs-on: ubuntu-22.04
       outputs:
         image-tag: ${{ steps.get-image-tag.outputs.tag }}
+        image-name: ${{ steps.get-image-metadata.outputs.tag }}
+        image-description: ${{ steps.get-image-metadata.outputs.description }}
       steps:
         - run: |
-            if $(echo '${{ github.ref_name }}' | grep -qq master); then
-              echo "tag=''" >> $GITHUB_OUTPUT
-            else
-              echo "tag=$(echo '${{ github.ref_name }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
-            fi
+              [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]] && echo "tag=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2-)" >> $GITHUB_OUTPUT
           id: get-image-tag
         - run: |
-            echo '${{ steps.get-image-tag.outputs.tag }}'
+            if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
+              if [[ "${{ inputs.ref }}" =~ ^auth-.*|^rec-.*|^dnsdist-.* ]]; then
+                echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_OUTPUT
+              else
+                echo "version='${{ inputs.ref }}'" >> $GITHUB_OUTPUT
+            fi
+          id: get-image-version
+        - run: |
+            branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')
+            if $(echo'${{ inputs.product }}'| grep -qq auth); then
+              [[ "${{ inputs.ref }}" =~ ^auth-.* ]] && description='PowerDNS Authoritative Server $branch'" || description='EXPERIMENTAL pdns auth image'
+              echo "name=pdns-auth-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+            elif $(echo'${{ inputs.product }}'| grep -qq recursor); then
+              [[ "${{ inputs.ref }}" =~ ^rec-.* ]] && description='PowerDNS Recursor $branch'" || description='EXPERIMENTAL pdns recursor image'
+              echo "name=pdns-recursor-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+            else
+              [[ "${{ inputs.ref }}" =~ ^dnsdist-.* ]] && description='PowerDNS DNSDist $branch'" || description='EXPERIMENTAL dnsdist image'
+              echo "name=dnsdist-${{ steps.get-image-version.outputs.version }}" >> $GITHUB_OUTPUT
+            fi
+          id: get-image-metadata
 
     call-build-docker-image:
       uses: romeroalx/pdns/.github/workflows/build-docker-images.yml@build-docker-images-dev
@@ -67,11 +76,11 @@
       with:
         product: ${{ inputs.product }}
         ref: ${{ inputs.ref }}
-        image-name: ${{ inputs.image-name }}
+        image-name: ${{ needs.prepare.outputs.image-name }}
         image-tags: |-
           latest
           ${{ needs.prepare.outputs.image-tag }}
-        image-description: ${{ inputs.image-description }}
+        image-description: ${{ needs.prepare.outputs.image-description }}
         platforms: ${{ inputs.platforms }}
         build-args: ${{ inputs.build-args }}
         push: ${{ inputs.push }}
@@ -79,4 +88,3 @@
         DOCKERHUB_ORGANIZATION_NAME: ${{ secrets.DOCKERHUB_ORGANIZATION_NAME }}
         DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-  
