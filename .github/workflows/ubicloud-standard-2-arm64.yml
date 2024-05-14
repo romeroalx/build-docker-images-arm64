@@ -53,7 +53,7 @@
               echo "version=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2 | awk -F'.' '{print $1$2}')" >> $GITHUB_ENV
               echo "branch=$(echo '${{ inputs.ref }}' | cut -d '-' -f 2- | awk -F'.' '{print "v"$1"."$2".x"}')" >> $GITHUB_ENV
             else
-              echo "version=${{ inputs.ref }}" >> $GITHUB_ENV
+              echo "version=$(echo '${{ inputs.ref }}' | tr '/' '-')" >> $GITHUB_ENV
               echo "branch=${{ inputs.ref }}" >> $GITHUB_ENV
             fi
         - run: |
